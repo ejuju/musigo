@@ -1,14 +1,15 @@
 package sound
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"testing"
 	"time"
 )
 
-// TestWaves test if waves oscillate at the right float64 given a certain time.
-func TestWaves(t *testing.T) {
+// TestOscillators test if waves oscillate at the right float64 given a certain time.
+func TestOscillators(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -17,6 +18,7 @@ func TestWaves(t *testing.T) {
 	}{
 		{oscName: "Sine", osc: &SineWave{}},
 		{oscName: "Square", osc: &SquareWave{}},
+		{oscName: "Sawtooth", osc: &SawToothWave{}},
 	}
 
 	for _, test := range tests {
@@ -100,4 +102,26 @@ func TestSawTooth(t *testing.T) {
 			t.Fatalf("Unexpected value, got %f but want %f", got, test.want)
 		}
 	}
+}
+
+func TestWaveWithMaxDuration(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Should limit the duration of a wave", func(t *testing.T) {
+		duration := 500 * time.Millisecond
+		wantValueBeforeEnd := -1.0
+
+		wave := NewWaveWithMaxDuration(&SquareWave{}, duration)
+		gotValBeforeEnd, gotErrBeforeEnd := wave.Value(1, duration-1)
+		if gotErrBeforeEnd != nil {
+			t.Fatal("wave should not return an error")
+		}
+		if gotValBeforeEnd != wantValueBeforeEnd {
+			t.Fatalf("got: %f, want: %f", gotValBeforeEnd, wantValueBeforeEnd)
+		}
+		_, gotErrAfterEnd := wave.Value(1, duration+1)
+		if !errors.Is(gotErrAfterEnd, ErrEndOfWave) {
+			t.Fatal("wave should return error end of wave")
+		}
+	})
 }

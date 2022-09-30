@@ -45,4 +45,29 @@ func TestFrames(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("Should validate required inputs", func(t *testing.T) {
+		validWave := sound.NewWaveWithMaxDuration(&sound.SineWave{}, time.Second)
+		var invalidWave sound.Wave = nil
+		validSampleRate := 1
+		invalidSampleRate := 0
+
+		tests := []struct {
+			frequency  float64
+			wave       sound.Wave
+			sampleRate int
+			wantErr    bool
+		}{
+			{wave: validWave, sampleRate: validSampleRate, wantErr: false},  // all valid
+			{wave: invalidWave, sampleRate: validSampleRate, wantErr: true}, // only invalid wave
+			{wave: validWave, sampleRate: invalidSampleRate, wantErr: true}, // only invalid sample rate
+		}
+
+		for i, test := range tests {
+			_, err := Frames(test.frequency, test.wave, test.sampleRate)
+			if (err != nil) != test.wantErr {
+				t.Fatalf("unexpected error at index %d, wantErr is %v but got %v", i, test.wantErr, err)
+			}
+		}
+	})
 }

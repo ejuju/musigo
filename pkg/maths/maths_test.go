@@ -31,7 +31,7 @@ func TestInterpolationFunctions(t *testing.T) {
 
 	for i, test := range tests {
 		for j, fn := range funcs {
-			t.Run(fmt.Sprintf("Check function %d (test %d)", j, i), func(t *testing.T) {
+			t.Run(fmt.Sprintf("Should return the right value for function %d (test %d)", j, i), func(t *testing.T) {
 				got := fn.At(test.x, test.x1, test.x2, test.y1, test.y2)
 				if math.Abs(got-test.want) > 0.0000001 {
 					t.Fatalf("want %v, got %v", test.want, got)
