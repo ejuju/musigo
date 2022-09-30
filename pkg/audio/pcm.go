@@ -22,7 +22,6 @@ func (e *PCMEncoder) Encode(w io.Writer, frames []float64) error {
 	for _, pulse := range frames {
 		var buf [8]byte
 		binary.LittleEndian.PutUint64(buf[:], math.Float64bits(pulse))
-
 		_, err := w.Write(buf[:])
 		if err != nil {
 			return err

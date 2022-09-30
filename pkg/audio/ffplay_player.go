@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ejuju/musigo/pkg/sound"
@@ -22,6 +23,8 @@ type FFPlayPlayer struct {
 	SaveFile   bool
 	Freq       float64
 }
+
+var ErrFFPlayCommand = errors.New("failed to execute ffplay command")
 
 func (p FFPlayPlayer) Play() error {
 	if p.SampleRate <= 0 {
@@ -53,28 +56,35 @@ func (p FFPlayPlayer) Play() error {
 		return fmt.Errorf("failed to encode PCM pulses: %w", err)
 	}
 
-	// Read output file with ffplay
-	err = exec.CommandContext(context.Background(),
-		"ffplay",
-		"-f", "f64le",
-		"-ar", strconv.Itoa(p.SampleRate),
-		"-window_title", "Musigo - "+p.Filepath,
-		"-autoexit",
-		"-showmode", "1",
-		p.Filepath,
-	).Run()
-
-	if err != nil {
-		return fmt.Errorf("failed to play PCM file using ffplay: %w", err)
-	}
-
-	// remove file after play if desired
-	if !p.SaveFile {
-		err := os.Remove(p.Filepath)
-		if err != nil {
-			return fmt.Errorf("failed to delete file (%s): %w", p.Filepath, err)
+	// the call to remove the file is deferred in case the command execution fails, then this couldn't be called.
+	defer func() error {
+		// remove file after play if desired
+		if !p.SaveFile {
+			err := os.Remove(p.Filepath)
+			if err != nil {
+				return fmt.Errorf("failed to delete file (%s): %w", p.Filepath, err)
+			}
 		}
+		return nil
+	}()
+
+	// Read output file with ffplay (by launching ffplay from the CLI)
+	cmdstr := strings.Split(newFFPlayCommand(p.SampleRate, p.Filepath), " ")
+	err = exec.CommandContext(context.Background(), cmdstr[0], cmdstr[1:]...).Run()
+	if err != nil {
+		return fmt.Errorf("failed to play PCM file using ffplay: %w: %s", ErrFFPlayCommand, err.Error())
 	}
 
 	return nil
+}
+
+// newFFPlayCommand returns the command string used to play a PCM file with ffplay.
+func newFFPlayCommand(sampleRate int, filepath string) string {
+	return "ffplay" + " " +
+		"-f f64le" + " " +
+		"-ar " + strconv.Itoa(sampleRate) + " " +
+		"-window_title Musigo - " + filepath + " " +
+		"-autoexit" + " " +
+		"-showmode 1" + " " +
+		filepath
 }

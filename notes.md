@@ -1,6 +1,21 @@
 # Quick notes
 
-### Ideas for later
+## Run tests
+
+This section describes how to run tests for this project.
+
+### Check code (unit tests and linting)
+```
+$ ./scripts/check_code.sh
+```
+
+### Show covered and uncovered code
+```
+$ go test -coverprofile cover.out ./...
+$ go tool cover -html=cover.out
+```
+
+## Ideas for later
 
 - [ ] Generate midi notes and chords variables with code generation
 - [ ] Separate file encoder from player

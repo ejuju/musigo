@@ -31,5 +31,3 @@ The idea is to build the smallest file possible for each possible sound you need
 - `pkg/music`: Musical primitives (notes, chords, scales, tempo, composition, etc.)
 - `pkg/sound`: Sound synthesis (oscillators, waves, envelopes, effects, etc.)
 - `pkg/musigo`: Musigo debugging layer.
-
-

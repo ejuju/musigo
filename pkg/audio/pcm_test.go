@@ -47,7 +47,7 @@ func TestPCMDecoder(t *testing.T) {
 		var _ Decoder = &PCMDecoder{}
 	})
 
-	t.Run("Should validate inputs", func(t *testing.T) {
+	t.Run("Should validate required inputs", func(t *testing.T) {
 		decoder := &PCMDecoder{}
 		validReader := bytes.NewBuffer([]byte{})
 		var invalidReader io.Reader = nil
@@ -63,6 +63,7 @@ func TestPCMDecoder(t *testing.T) {
 		for i, test := range tests {
 			_, err := decoder.Decode(test.reader)
 			if (err != nil) != test.wantErr {
+				// ignore command error
 				t.Fatalf("unexpected error at index %d, wantErr is %v but got %v", i, test.wantErr, err)
 			}
 		}
