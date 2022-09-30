@@ -7,7 +7,7 @@ You can use it to compose algorithmic music.
 
 ### Requirements
 
-1. Get the Golang Musigo module in your project `go get -u github.com/ejuju/musigo`
+1. Add Musigo to your Go project with `go get -u github.com/ejuju/musigo`
 1. Make sure `ffplay` is installed and can be called from the command line.
 
 ### Getting started
