@@ -18,7 +18,7 @@ Once you can hear the output sound, you're good to go, you can just jump through
 ### Folder structure
 
 - `pkg/audio`: Audio encoding and decoding (PCM, WAV, MIDI, etc.) and players
-- `pkg/maths`: Math utilities (floating point comparison utilities, noise/random functions, interpollation functions, etc.)
+- `pkg/maths`: Math utilities (floats utilities, noise/random functions, interpollation functions, etc.)
 - `pkg/music`: Musical primitives (notes, chords, scales, tempo, composition, etc.)
 - `pkg/sound`: Sound synthesis (oscillators, waves, envelopes, effects, etc.)
 - `pkg/musigo`: Musigo debugging layer.
