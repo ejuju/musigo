@@ -38,6 +38,7 @@ func TestFFplayPlayer(t *testing.T) {
 			player := &FFPlayPlayer{
 				Wave:       test.wave,
 				SampleRate: test.sampleRate,
+				noExec:     true,
 			}
 			err := player.Play()
 			if (err != nil) != test.wantErr {
@@ -91,6 +92,7 @@ func TestFFplayPlayer(t *testing.T) {
 			Wave:       sound.NewWaveWithMaxDuration(&sound.SineWave{}, time.Second),
 			SampleRate: 44100,
 			Filepath:   filepath,
+			noExec:     true,
 		}
 
 		// play without saving file
@@ -122,6 +124,8 @@ func TestFFplayPlayer(t *testing.T) {
 
 		// cleanup: remove saved file if it was created
 		err = os.Remove(filepath)
-		t.Logf("warning: failed to remove test file: %s (err: %s)", filepath, err)
+		if err != nil {
+			t.Logf("warning: failed to remove test file: %s (err: %s)", filepath, err)
+		}
 	})
 }

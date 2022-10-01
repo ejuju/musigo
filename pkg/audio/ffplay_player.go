@@ -21,6 +21,7 @@ type FFPlayPlayer struct {
 	Filepath   string
 	SaveFile   bool
 	Freq       float64
+	noExec     bool // to prevent ffplay command execution
 }
 
 var ErrFFPlayCommand = errors.New("failed to execute ffplay command")
@@ -66,6 +67,11 @@ func (p FFPlayPlayer) Play() error {
 		}
 		return nil
 	}()
+
+	// allow caller to prevent command execution for testing for example.
+	if p.noExec {
+		return nil
+	}
 
 	// Read output file with ffplay (by launching ffplay from the CLI)
 	cmdstr := strings.Split(newFFPlayCommand(p.SampleRate, p.Filepath), " ")
