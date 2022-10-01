@@ -26,12 +26,18 @@ Once you can hear the output sound, you're good to go, you can just jump through
 ### Features for v1
 
 - Sound:
-    - [x] Basic oscillators (sine, square, sawtooth)
-    - [ ] Amplitude envelope
-    - [ ] Patterns (to build progressions)
+    - [x] Provide basic oscillators (sine, square, sawtooth)
+    - [ ] Handle amplitude envelopes
 - Audio:
-    - [x] PCM encoding
-    - [x] PCM playing (with ffplay)
-    - [ ] PCM decoding
-    - [ ] WAV encoding
-    - [ ] WAV decoding
+    - [x] Encode `sound.Wave` as PCM
+    - [x] Play PCM files (with ffplay)
+    - [ ] Decode PCM to `sound.Wave`
+    - [ ] Decode WAV to PCM
+    - [ ] Encode PCM to WAV
+    - [ ] Provide audio samples (with go embed)
+- Music:
+    - [ ] Handle loops
+    - [ ] Provide notes
+    - [ ] Provide chords and scales
+    - [ ] Handle arpeggios
+    - [ ] Handle tempo
