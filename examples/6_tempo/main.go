@@ -14,8 +14,7 @@ func main() {
 	bpm := music.BPM(120.0)
 
 	// First, let's make define a wave that we will use for each note
-	notewave := sound.NewWaveWithAmplitudeEnvelope(
-		&sound.SineWave{},
+	notewave := sound.NewWaveWithAmplitudeEnvelope(&sound.SineWave{},
 		sound.NewControlWave(nil, []*sound.ControlWaveSegment{
 			{Duration: bpm.Beats(0.125), EndValue: 1.0},
 			{Duration: bpm.Beats(0.125)},

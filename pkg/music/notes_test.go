@@ -2,6 +2,7 @@ package music
 
 import (
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -11,11 +12,11 @@ func TestRelativeFrequency(t *testing.T) {
 		semitones float64
 		want      float64
 	}{
-		{root: C3.Frequency(), semitones: 0, want: C3.Frequency()},
-		{root: C3.Frequency(), semitones: 2, want: D3.Frequency()},
-		{root: C3.Frequency(), semitones: -5, want: G2.Frequency()},
-		{root: C3.Frequency(), semitones: 12, want: C4.Frequency()},
-		{root: C3.Frequency(), semitones: 14, want: D4.Frequency()},
+		{root: NoteC3.Frequency(), semitones: 0, want: NoteC3.Frequency()},
+		{root: NoteC3.Frequency(), semitones: 2, want: NoteD3.Frequency()},
+		{root: NoteC3.Frequency(), semitones: -5, want: NoteG2.Frequency()},
+		{root: NoteC3.Frequency(), semitones: 12, want: NoteC4.Frequency()},
+		{root: NoteC3.Frequency(), semitones: 14, want: NoteD4.Frequency()},
 	}
 
 	for i, test := range tests {
@@ -26,22 +27,44 @@ func TestRelativeFrequency(t *testing.T) {
 	}
 }
 
-func TestNoteNumbers(t *testing.T) {
-	t.Run("Should be midi notation compliant frequencies", func(t *testing.T) {
-		tests := []struct {
-			note     NoteNumber
-			wantFreq float64
-		}{
-			{note: A0, wantFreq: 27.50},    // lowest midi note
-			{note: A4, wantFreq: 440.00},   // standard pitch
-			{note: G9, wantFreq: 12543.85}, // highest midi note
+func TestSemitones(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Should be able to control notes' octaves", func(t *testing.T) {
+		semitones := SemitonesFromRoot{0, 5, 13, -14}
+		octaves := []float64{-1, 0, 1, 2}
+		wantSemitones := SemitonesFromRoot{
+			-12, -7, 1, -26,
+			0, 5, 13, -14,
+			12, 17, 25, -2,
+			24, 29, 37, 10,
 		}
 
-		for _, test := range tests {
-			got := float64(test.note.Frequency())
-			if math.Abs(got-test.wantFreq) > 0.01 {
-				t.Fatalf("For note: %d, got: %f but wanted: %f", test.note, got, test.wantFreq)
+		semitones = semitones.Octave(octaves...)
+		for i, wantSemitone := range wantSemitones {
+			got := semitones[i]
+			if math.Abs(got-wantSemitone) > 0.00001 {
+				t.Fatalf("want %f but got %f", wantSemitone, got)
 			}
+		}
+	})
+
+	t.Run("Should be able to be shuffled", func(t *testing.T) {
+		semitones := SemitonesFromRoot{1.0, 2.0, 3.0}
+		got := make(SemitonesFromRoot, len(semitones))
+		copy(got, semitones)
+		got = got.Shuffle(0)
+		if reflect.DeepEqual(got, semitones) {
+			t.Fatalf("Should not be the same as before, got %v but already had %v before", got, semitones)
+		}
+	})
+
+	t.Run("Should be able to be reversed", func(t *testing.T) {
+		notes := SemitonesFromRoot{1.0, 2.0, 3.0}
+		want := SemitonesFromRoot{3.0, 2.0, 1.0}
+		got := notes.Reverse()
+		if !reflect.DeepEqual(got, want) {
+			t.Fatalf("Should have been reversed, got %#v but want %#v", got, want)
 		}
 	})
 }

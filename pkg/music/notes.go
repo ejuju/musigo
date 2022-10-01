@@ -1,137 +1,111 @@
 package music
 
-import "math"
+import (
+	"math"
+	"math/rand"
+	"time"
 
-// A musical constant used in the calculation to define music notes.
-var musicalConstant = math.Pow(2, float64(1)/float64(12))
+	"github.com/ejuju/musigo/pkg/sound"
+)
+
+// The constant used in the calculation to define music notes.
+var MusicalConstant = math.Pow(2, 1.0/12.0)
 
 // RelativeFrequency calculates the frequency of a note given a root frequency and number of semitones.
 func RelativeFrequency(root float64, semitones float64) float64 {
-	return float64(root) * math.Pow(musicalConstant, semitones)
+	return float64(root) * math.Pow(MusicalConstant, semitones)
 }
 
-type NoteNumber int
+// Semitones represents the semitones "gaps" between notes of a music scale or chord.
+type SemitonesFromRoot []float64
 
-func (n NoteNumber) Frequency() float64 {
-	return RelativeFrequency(440.00, float64(n)-69.00)
+// Octave returns notes containing the octaves passed as inputs.
+// Pass zero in the inputs if you want to include the original notes in the output.
+func (s SemitonesFromRoot) Octave(octaves ...float64) SemitonesFromRoot {
+	out := SemitonesFromRoot{}
+	for _, oct := range octaves {
+		for _, note := range s {
+			out = append(out, note+12*oct)
+		}
+	}
+	return out
 }
 
-const (
-	A0 NoteNumber = 21 + iota
-	Bb0
-	B0
+// Shuffle randomly changes the order of notes.
+func (s SemitonesFromRoot) Shuffle(randSeed int64) SemitonesFromRoot {
+	r := rand.New(rand.NewSource(randSeed))
+	r.Shuffle(len(s), func(i, j int) {
+		s[i], s[j] = s[j], s[i]
+	})
+	return s
+}
 
-	C1
-	Db1
-	D1
-	Eb1
-	E1
-	F1
-	Gb1
-	G1
-	Ab1
-	A1
-	Bb1
-	B1
+// Reverse returns notes in the opposite order.
+func (n SemitonesFromRoot) Reverse() SemitonesFromRoot {
+	for i, j := 0, len(n)-1; i < j; i, j = i+1, j-1 {
+		n[i], n[j] = n[j], n[i]
+	}
+	return n
+}
 
-	C2
-	Db2
-	D2
-	Eb2
-	E2
-	F2
-	Gb2
-	G2
-	Ab2
-	A2
-	Bb2
-	B2
+// Wave converts a semitones to a sound.Wave
+func (s SemitonesFromRoot) Arpeggio(wave sound.Wave, durations ...time.Duration) *Loop {
+	segments := []*sound.ControlWaveSegment{}
 
-	C3
-	Db3
-	D3
-	Eb3
-	E3
-	F3
-	Gb3
-	G3
-	Ab3
-	A3
-	Bb3
-	B3
+	for i, gap := range s {
+		duration := durations[i%len(durations)]
+		segments = append(segments, &sound.ControlWaveSegment{
+			Duration:   duration,
+			StartValue: RelativeFrequency(1, gap),
+			EndValue:   RelativeFrequency(1, gap),
+		})
+	}
 
-	C4
-	Db4
-	D4
-	Eb4
-	E4
-	F4
-	Gb4
-	G4
-	Ab4
-	A4
-	Bb4
-	B4
+	freqCtrlWave := sound.NewControlWave(nil, segments)
+	totalDur := freqCtrlWave.Duration()
+	return NewLoop(sound.NewWaveWithFrequencyEnvelope(wave, freqCtrlWave), totalDur)
+}
 
-	C5
-	Db5
-	D5
-	Eb5
-	E5
-	F5
-	Gb5
-	G5
-	Ab5
-	A5
-	Bb5
-	B5
+//
+func (s SemitonesFromRoot) Chord(wave sound.Wave) *sound.MergedWaves {
+	waves := []sound.Wave{}
 
-	C6
-	Db6
-	D6
-	Eb6
-	E6
-	F6
-	Gb6
-	G6
-	Ab6
-	A6
-	Bb6
-	B6
+	for _, gap := range s {
+		waves = append(waves, sound.NewWaveWithFrequencyMultiplier(wave, RelativeFrequency(1, gap)))
+	}
 
-	C7
-	Db7
-	D7
-	Eb7
-	E7
-	F7
-	Gb7
-	G7
-	Ab7
-	A7
-	Bb7
-	B7
+	return sound.NewMergedWaves(waves...)
+}
 
-	C8
-	Db8
-	D8
-	Eb8
-	E8
-	F8
-	Gb8
-	G8
-	Ab8
-	A8
-	Bb8
-	B8
+// All pre-defined chords in one slice.
+var AllChords = []SemitonesFromRoot{
+	ChordMajor,
+	ChordMinor,
+	ChordMajor7,
+	ChordMinor7,
+	Chord5,
+}
 
-	C9
-	Db9
-	D9
-	Eb9
-	E9
-	F9
-	Gb9
-	G9
-	Ab9
+// Common chords are defined as relative semitones intervals.
+var (
+	ChordMajor  = SemitonesFromRoot{0, 3, 5}
+	ChordMinor  = SemitonesFromRoot{0, 2, 5}
+	ChordMajor7 = SemitonesFromRoot{0, 3, 5, 10}
+	ChordMinor7 = SemitonesFromRoot{0, 2, 3, 10}
+	Chord5      = SemitonesFromRoot{0, 5}
+)
+
+// All pre-defined scales in one slice.
+var AllScales = []SemitonesFromRoot{
+	HarmonicMajorScale,
+	HarmonicMinorScale,
+	PentatonicMinorScale,
+	BluesMinorScale,
+}
+
+var (
+	HarmonicMajorScale   = SemitonesFromRoot{0, 2, 4, 5, 7, 9, 11}
+	HarmonicMinorScale   = SemitonesFromRoot{0, 2, 3, 5, 7, 8, 11}
+	PentatonicMinorScale = SemitonesFromRoot{0, 3, 5, 7, 10}
+	BluesMinorScale      = SemitonesFromRoot{0, 3, 5, 6, 7, 10}
 )

@@ -143,10 +143,10 @@ func (w *ControlWave) Duration() time.Duration {
 // This is usually used to make ADSR envelopes.
 type WaveWithAmplitudeEnvelope struct {
 	wave        Wave
-	controlWave Wave
+	controlWave *ControlWave
 }
 
-func NewWaveWithAmplitudeEnvelope(wave Wave, controlWave Wave) *WaveWithAmplitudeEnvelope {
+func NewWaveWithAmplitudeEnvelope(wave Wave, controlWave *ControlWave) *WaveWithAmplitudeEnvelope {
 	return &WaveWithAmplitudeEnvelope{
 		wave:        wave,
 		controlWave: controlWave,
@@ -174,10 +174,10 @@ func (w *WaveWithAmplitudeEnvelope) Value(freq float64, x time.Duration) (float6
 // Numbers above 1 will increase the frequency and below 1 will decrease the frequency.
 type WaveWithFrequencyEnvelope struct {
 	wave        Wave
-	controlWave Wave
+	controlWave *ControlWave
 }
 
-func NewWaveWithFrequencyEnvelope(wave Wave, controlWave Wave) *WaveWithFrequencyEnvelope {
+func NewWaveWithFrequencyEnvelope(wave Wave, controlWave *ControlWave) *WaveWithFrequencyEnvelope {
 	return &WaveWithFrequencyEnvelope{
 		wave:        wave,
 		controlWave: controlWave,
@@ -185,6 +185,10 @@ func NewWaveWithFrequencyEnvelope(wave Wave, controlWave Wave) *WaveWithFrequenc
 }
 
 func (w *WaveWithFrequencyEnvelope) Value(freq float64, x time.Duration) (float64, error) {
+	// if w.loop {
+	// 	x = time.Duration(math.Mod(float64(x), float64(w.controlWave.Duration())))
+	// }
+
 	ctrlfreq, err := w.controlWave.Value(-1, x)
 	if err != nil {
 		return 0.0, fmt.Errorf("unable to get value from control wave: %w", err)
@@ -196,4 +200,40 @@ func (w *WaveWithFrequencyEnvelope) Value(freq float64, x time.Duration) (float6
 	}
 
 	return val, nil
+}
+
+// WaveWithFrequencyMultiplier multiplies the frequency by the multiplier and passes it to the underlying wave.
+type WaveWithFrequencyMultiplier struct {
+	wave       Wave
+	multiplier float64
+}
+
+func NewWaveWithFrequencyMultiplier(wave Wave, multiplier float64) *WaveWithFrequencyMultiplier {
+	return &WaveWithFrequencyMultiplier{wave: wave, multiplier: multiplier}
+}
+
+func (w *WaveWithFrequencyMultiplier) Value(freq float64, at time.Duration) (float64, error) {
+	return w.wave.Value(freq*w.multiplier, at)
+}
+
+// MergedWaves combines several waves into one.
+// It's basically used to make several waves play at the same time.
+type MergedWaves struct {
+	waves []Wave
+}
+
+func NewMergedWaves(waves ...Wave) *MergedWaves {
+	return &MergedWaves{waves: waves}
+}
+
+func (w *MergedWaves) Value(freq float64, x time.Duration) (float64, error) {
+	out := 0.0
+	for _, wave := range w.waves {
+		val, err := wave.Value(freq, x)
+		if err != nil {
+			return 0.0, err
+		}
+		out += val
+	}
+	return out / float64(len(w.waves)), nil
 }

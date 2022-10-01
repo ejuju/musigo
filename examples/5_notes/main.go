@@ -11,7 +11,7 @@ import (
 func main() {
 	// For now, we've been using frequencies instead of notes.
 	// Here's how you can use notes.
-	frequency := music.C4.Frequency()
+	frequency := music.NoteC4.Frequency()
 
 	// let's make a simple wave that lasts for one second to hear the note.
 	osc := &sound.SineWave{}

@@ -9,6 +9,12 @@ import (
 )
 
 func TestLoop(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Should implement sound.Wave interface", func(t *testing.T) {
+		var _ sound.Wave = &Loop{}
+	})
+
 	t.Run("Should ignore wrapped wave's end", func(t *testing.T) {
 		wrapped := sound.NewWaveWithMaxDuration(&sound.MockWave{}, time.Millisecond)
 		testwave := NewLoop(wrapped, time.Second)

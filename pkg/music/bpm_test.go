@@ -6,6 +6,8 @@ import (
 )
 
 func TestBPM(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Should return the right duration", func(t *testing.T) {
 		tests := []struct {
 			bpm     BPM
