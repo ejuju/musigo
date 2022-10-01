@@ -46,6 +46,13 @@ func (o *SawToothWave) Value(freq float64, x time.Duration) (float64, error) {
 	return math.Mod(2*x.Seconds()*float64(freq), 2) - 1, nil
 }
 
+// MockWave is a wave that always produces the value of one.
+type MockWave struct{}
+
+func (w *MockWave) Value(freq float64, at time.Duration) (float64, error) {
+	return 1, nil
+}
+
 // WaveWithMaxDuration provides the value of the underlying wave until
 // the given duration is reached, after which it returns an ErrEndOfWave.
 // The underlying wave can still return an ErrEndOfWave before the deadline is reached.
@@ -106,6 +113,7 @@ func (w *ControlWave) Value(_ float64, x time.Duration) (float64, error) {
 			continue
 		}
 
+		// if segment start value is defined, set start value to it.
 		if math.Abs(segment.StartValue) > 0.000001 {
 			startValue = segment.StartValue
 		}
@@ -146,7 +154,7 @@ func NewWaveWithAmplitudeEnvelope(wave Wave, controlWave Wave) *WaveWithAmplitud
 }
 
 func (w *WaveWithAmplitudeEnvelope) Value(freq float64, x time.Duration) (float64, error) {
-	amplitude, err := w.controlWave.Value(freq, x)
+	amplitude, err := w.controlWave.Value(-1, x)
 	if err != nil {
 		return 0.0, fmt.Errorf("unable to get value from control wave: %w", err)
 	}
@@ -159,9 +167,33 @@ func (w *WaveWithAmplitudeEnvelope) Value(freq float64, x time.Duration) (float6
 	return val * amplitude, nil
 }
 
-// MockWave is a wave that always produces the value of one.
-type MockWave struct{}
+// FrequencyEnvelope controls the frequency of a wave over time.
+//
+// It multiplies the frequency passed to the wave by the value of the control wave.
+// The control wave should return 1 to keep the same frequency.
+// Numbers above 1 will increase the frequency and below 1 will decrease the frequency.
+type WaveWithFrequencyEnvelope struct {
+	wave        Wave
+	controlWave Wave
+}
 
-func (w *MockWave) Value(freq float64, at time.Duration) (float64, error) {
-	return 1, nil
+func NewWaveWithFrequencyEnvelope(wave Wave, controlWave Wave) *WaveWithFrequencyEnvelope {
+	return &WaveWithFrequencyEnvelope{
+		wave:        wave,
+		controlWave: controlWave,
+	}
+}
+
+func (w *WaveWithFrequencyEnvelope) Value(freq float64, x time.Duration) (float64, error) {
+	ctrlfreq, err := w.controlWave.Value(-1, x)
+	if err != nil {
+		return 0.0, fmt.Errorf("unable to get value from control wave: %w", err)
+	}
+
+	val, err := w.wave.Value(freq*ctrlfreq, x)
+	if err != nil {
+		return 0.0, fmt.Errorf("unable to get value from wave: %w", err)
+	}
+
+	return val, nil
 }

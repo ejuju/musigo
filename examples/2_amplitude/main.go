@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	// How to control amplitudes? You use sound.NewWaveWithAmplitudeEnvelope.
+
 	// This example shows how you can make a simple ADSR envelope.
 	// This is done using a control wave that will control the amplitude of another wave.
 	wave := sound.NewWaveWithAmplitudeEnvelope(

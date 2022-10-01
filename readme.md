@@ -27,7 +27,8 @@ Once you can hear the output sound, you're good to go, you can just jump through
 
 - Sound:
     - [x] Provide basic oscillators (sine, square, sawtooth)
-    - [ ] Handle amplitude envelopes
+    - [x] Control amplitude over time (ex: ADSR envelope)
+    - [x] Control frequency over time (ex: melody)
 - Audio:
     - [x] Encode `sound.Wave` as PCM
     - [x] Play PCM files (with ffplay)
@@ -36,7 +37,7 @@ Once you can hear the output sound, you're good to go, you can just jump through
     - [ ] Encode PCM to WAV
     - [ ] Provide percussion audio samples (with go embed)
 - Music:
-    - [ ] Handle loops
+    - [x] Handle loops
     - [ ] Provide notes
     - [ ] Provide chords and scales
     - [ ] Handle arpeggios

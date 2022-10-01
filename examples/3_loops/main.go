@@ -18,10 +18,12 @@ func main() {
 		}),
 	)
 
-	// This loop with play the wave, for 500 milliseconds, 16 times.
-	loop := music.NewLoop(wave, 500*time.Millisecond, 16)
+	// This loop with play the wave on repeat.
+	loop := music.NewLoop(wave, 500*time.Millisecond)
 
-	err := audio.FFPlayPlayer{Wave: loop, SampleRate: 44100, Freq: 440.00}.Play()
+	// set max duration otherwise loop goes on forever.
+	out := sound.NewWaveWithMaxDuration(loop, 16*time.Second)
+	err := audio.FFPlayPlayer{Wave: out, SampleRate: 44100, Freq: 440.00}.Play()
 	if err != nil {
 		panic(err)
 	}
