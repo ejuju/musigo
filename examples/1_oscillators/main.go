@@ -18,7 +18,6 @@ func main() {
 
 	for _, osc := range oscillators {
 		wave := sound.NewWaveWithMaxDuration(osc, time.Second)
-
 		err := audio.FFPlayPlayer{Wave: wave, SampleRate: 44100, Freq: 440.00}.Play()
 		if err != nil {
 			panic(err)

@@ -34,7 +34,7 @@ Once you can hear the output sound, you're good to go, you can just jump through
     - [ ] Decode PCM to `sound.Wave`
     - [ ] Decode WAV to PCM
     - [ ] Encode PCM to WAV
-    - [ ] Provide audio samples (with go embed)
+    - [ ] Provide percussion audio samples (with go embed)
 - Music:
     - [ ] Handle loops
     - [ ] Provide notes
