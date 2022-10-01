@@ -1,7 +1,6 @@
 package audio
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -56,7 +55,7 @@ func (p FFPlayPlayer) Play() error {
 		return fmt.Errorf("failed to encode PCM pulses: %w", err)
 	}
 
-	// the call to remove the file is deferred in case the command execution fails, then this couldn't be called.
+	// the call to remove the file is deferred (in case the command execution fails, then the the file wouldn't be removed)
 	defer func() error {
 		// remove file after play if desired
 		if !p.SaveFile {
@@ -70,11 +69,10 @@ func (p FFPlayPlayer) Play() error {
 
 	// Read output file with ffplay (by launching ffplay from the CLI)
 	cmdstr := strings.Split(newFFPlayCommand(p.SampleRate, p.Filepath), " ")
-	err = exec.CommandContext(context.Background(), cmdstr[0], cmdstr[1:]...).Run()
+	err = exec.Command(cmdstr[0], cmdstr[1:]...).Run()
 	if err != nil {
 		return fmt.Errorf("failed to play PCM file using ffplay: %w: %s", ErrFFPlayCommand, err.Error())
 	}
-
 	return nil
 }
 
@@ -83,7 +81,6 @@ func newFFPlayCommand(sampleRate int, filepath string) string {
 	return "ffplay" + " " +
 		"-f f64le" + " " +
 		"-ar " + strconv.Itoa(sampleRate) + " " +
-		"-window_title Musigo - " + filepath + " " +
 		"-autoexit" + " " +
 		"-showmode 1" + " " +
 		filepath

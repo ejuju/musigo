@@ -29,10 +29,9 @@ func TestFFplayPlayer(t *testing.T) {
 			sampleRate int
 			wantErr    bool
 		}{
-			{wave: validWave, sampleRate: validSampleRate, wantErr: false},    // check both valid
-			{wave: invalidWave, sampleRate: validSampleRate, wantErr: true},   // check one invalid
-			{wave: validWave, sampleRate: invalidSampleRate, wantErr: true},   // check one invalid
-			{wave: invalidWave, sampleRate: invalidSampleRate, wantErr: true}, // check both invalid
+			{wave: validWave, sampleRate: validSampleRate, wantErr: false},  // check both valid
+			{wave: invalidWave, sampleRate: validSampleRate, wantErr: true}, // check one invalid
+			{wave: validWave, sampleRate: invalidSampleRate, wantErr: true}, // check one invalid
 		}
 
 		for i, test := range tests {

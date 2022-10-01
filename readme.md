@@ -22,3 +22,16 @@ Once you can hear the output sound, you're good to go, you can just jump through
 - `pkg/music`: Musical primitives (notes, chords, scales, tempo, composition, etc.)
 - `pkg/sound`: Sound synthesis (oscillators, waves, envelopes, effects, etc.)
 - `pkg/musigo`: Musigo debugging layer.
+
+### Features for v1
+
+- Sound:
+    - [x] Basic oscillators (sine, square, sawtooth)
+    - [ ] Amplitude envelope
+    - [ ] Patterns (to build progressions)
+- Audio:
+    - [x] PCM encoding
+    - [x] PCM playing (with ffplay)
+    - [ ] PCM decoding
+    - [ ] WAV encoding
+    - [ ] WAV decoding
