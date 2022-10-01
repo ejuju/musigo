@@ -158,3 +158,10 @@ func (w *WaveWithAmplitudeEnvelope) Value(freq float64, x time.Duration) (float6
 
 	return val * amplitude, nil
 }
+
+// MockWave is a wave that always produces the value of one.
+type MockWave struct{}
+
+func (w *MockWave) Value(freq float64, at time.Duration) (float64, error) {
+	return 1, nil
+}

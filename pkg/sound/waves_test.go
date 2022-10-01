@@ -140,8 +140,8 @@ func TestControlWave(t *testing.T) {
 		}
 
 		ctrlwave := NewControlWave(maths.LinearInterpolation{}, controlWaveSegments)
-
 		durCount := time.Duration(0)
+
 		for _, segment := range controlWaveSegments {
 			durCount += segment.Duration
 			got, _ := ctrlwave.Value(1, durCount)
@@ -155,13 +155,6 @@ func TestControlWave(t *testing.T) {
 			t.Fatal("control wave should have ended")
 		}
 	})
-}
-
-// MockWave is a wave that always produces the value of one.
-type MockWave struct{}
-
-func (w *MockWave) Value(freq float64, at time.Duration) (float64, error) {
-	return 1, nil
 }
 
 func TestWaveWithAmplitudeEnvelope(t *testing.T) {
