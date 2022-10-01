@@ -6,6 +6,7 @@ import "time"
 // It is used to represent a tempo.
 type BPM float64
 
-func (bpm BPM) BeatsToDuration(beats float64) time.Duration {
-	return time.Duration(float64(time.Minute) * beats / float64(bpm))
+// Duration returns the time.Duration corresponding to a certain number of beats.
+func (bpm BPM) Beats(numBeats float64) time.Duration {
+	return time.Duration(float64(time.Minute) * numBeats / float64(bpm))
 }

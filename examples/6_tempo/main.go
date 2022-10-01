@@ -17,21 +17,21 @@ func main() {
 	notewave := sound.NewWaveWithAmplitudeEnvelope(
 		&sound.SineWave{},
 		sound.NewControlWave(nil, []*sound.ControlWaveSegment{
-			{Duration: bpm.BeatsToDuration(0.125), EndValue: 1.0},
-			{Duration: bpm.BeatsToDuration(0.125)},
+			{Duration: bpm.Beats(0.125), EndValue: 1.0},
+			{Duration: bpm.Beats(0.125)},
 		}),
 	)
-	loop := music.NewLoop(notewave, bpm.BeatsToDuration(0.25))
+	loop := music.NewLoop(notewave, bpm.Beats(0.25))
 
 	// Now we want to change the frequency of this loop over time.
 	// Let's make a frequency envelope.
 	wave := sound.NewWaveWithFrequencyEnvelope(
 		loop,
 		sound.NewControlWave(nil, []*sound.ControlWaveSegment{
-			{Duration: bpm.BeatsToDuration(4), StartValue: 1.00, EndValue: 1.00},
-			{Duration: bpm.BeatsToDuration(4), StartValue: 1.00, EndValue: 2.50},
-			{Duration: bpm.BeatsToDuration(4), EndValue: 0.50},
-			{Duration: bpm.BeatsToDuration(4), StartValue: 2.00, EndValue: 2.00},
+			{Duration: bpm.Beats(4), StartValue: 1.00, EndValue: 1.00},
+			{Duration: bpm.Beats(4), StartValue: 1.00, EndValue: 2.50},
+			{Duration: bpm.Beats(4), EndValue: 0.50},
+			{Duration: bpm.Beats(4), StartValue: 2.00, EndValue: 2.00},
 		}),
 	)
 

@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestBPMToDuration(t *testing.T) {
-	t.Run("Should return the right duration for various BPMs and beats", func(t *testing.T) {
+func TestBPM(t *testing.T) {
+	t.Run("Should return the right duration", func(t *testing.T) {
 		tests := []struct {
 			bpm     BPM
 			beats   float64
@@ -21,7 +21,7 @@ func TestBPMToDuration(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			val := test.bpm.BeatsToDuration(test.beats).Seconds()
+			val := test.bpm.Beats(test.beats).Seconds()
 			if math.Abs(val-test.wantSec) > 0.001 {
 				t.Fatalf("Want: %.5fs, got: %.5fs", test.wantSec, val)
 			}
