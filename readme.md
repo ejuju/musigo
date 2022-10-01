@@ -21,7 +21,6 @@ Once you can hear the output sound, you're good to go, you can just jump through
 - `pkg/maths`: Math utilities (floats utilities, noise/random functions, interpollation functions, etc.)
 - `pkg/music`: Musical primitives (notes, chords, scales, tempo, composition, etc.)
 - `pkg/sound`: Sound synthesis (oscillators, waves, envelopes, effects, etc.)
-- `pkg/musigo`: Musigo debugging layer.
 
 ### Features for v1
 
