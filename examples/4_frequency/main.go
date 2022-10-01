@@ -10,7 +10,6 @@ import (
 
 func main() {
 	// How to control amplitudes? You use sound.NewWaveWithFrequencyEnvelope.
-
 	noteDuration := 200 * time.Millisecond
 
 	// First, let's make a basic sound loop with the note.
