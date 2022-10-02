@@ -22,7 +22,7 @@ func TestSample(t *testing.T) {
 
 		for i, frame := range frames {
 			elapsed := time.Second * time.Duration(i) / time.Duration(sampleRate)
-			got, _ := sample.Value(0, elapsed)
+			got, _ := sample.Value(elapsed)
 			if got != frame {
 				t.Fatalf("unexpected frame value at index %d, want %f but got %f", i, frame, got)
 			}
@@ -35,7 +35,7 @@ func TestSample(t *testing.T) {
 		sample := NewSample(frames, sampleRate)
 
 		timeAfterFramesEnd := time.Second * time.Duration(len(frames))
-		_, err := sample.Value(0, timeAfterFramesEnd)
+		_, err := sample.Value(timeAfterFramesEnd)
 		if !errors.Is(err, sound.ErrEndOfWave) {
 			t.Fatalf("unexpected error value, want %s but got %s", sound.ErrEndOfWave, err)
 		}

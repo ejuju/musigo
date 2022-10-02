@@ -21,7 +21,7 @@ func NewSample(frames []float64, sampleRate int) *Sample {
 }
 
 // Value returns the frame value for the at the input time duration.
-func (s *Sample) Value(_ float64, at time.Duration) (float64, error) {
+func (s *Sample) Value(at time.Duration) (float64, error) {
 	frameIndex := at / (time.Second / time.Duration(s.sampleRate))
 
 	if int(frameIndex) >= len(s.frames) {

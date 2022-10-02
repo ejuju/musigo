@@ -11,13 +11,13 @@ import (
 func main() {
 	// For now, we've been using frequencies instead of notes.
 	// Here's how you can use notes.
-	frequency := music.NoteC4.Frequency()
+	frequency := music.NoteC4.Hertz()
 
 	// let's make a simple wave that lasts for one second to hear the note.
-	osc := &sound.SineWave{}
+	osc := sound.NewSynthWave(&sound.Sine{}, frequency)
 	wave := sound.NewWaveWithMaxDuration(osc, time.Second)
 
-	err := audio.FFPlayPlayer{Wave: wave, Freq: frequency, SampleRate: 44100}.Play()
+	err := audio.FFPlayPlayer{Wave: wave, SampleRate: 44100}.Play()
 	if err != nil {
 		panic(err)
 	}

@@ -16,41 +16,18 @@ import (
 // the 1st return value is an output pulse that should be within -1 to 1, it corresponds to a PCM frame value.
 // the 2nd return value reports a possible error.
 type Wave interface {
-	Value(freq float64, elapsed time.Duration) (float64, error)
+	Value(elapsed time.Duration) (float64, error)
 }
 
 // ErrEndOfWave means that the wave has ended.
 var ErrEndOfWave = errors.New("end of wave")
 
-// Sine wave produces an oscillation. It is an implementation of the Wave type.
-type SineWave struct{}
-
-func (o *SineWave) Value(freq float64, x time.Duration) (float64, error) {
-	return math.Sin(x.Seconds() * 2 * math.Pi * float64(freq)), nil
-}
-
-// Square wave produces an oscillation. It is an implementation of the Wave type.
-type SquareWave struct{}
-
-func (o *SquareWave) Value(freq float64, x time.Duration) (float64, error) {
-	if math.Mod(x.Seconds()*float64(freq), 1) < 0.5 {
-		return -1, nil
-	}
-	return 1, nil
-}
-
-// Sawtooth wave produces an oscillation. It is an implementation of the Wave type.
-type SawToothWave struct{}
-
-func (o *SawToothWave) Value(freq float64, x time.Duration) (float64, error) {
-	return math.Mod(2*x.Seconds()*float64(freq), 2) - 1, nil
-}
-
 // MockWave is a wave that always produces the value of one.
+// Useful for testing and debugging.
 type MockWave struct{}
 
-func (w *MockWave) Value(freq float64, at time.Duration) (float64, error) {
-	return 1, nil
+func (w *MockWave) Value(at time.Duration) (float64, error) {
+	return 1.0, nil
 }
 
 // WaveWithMaxDuration provides the value of the underlying wave until
@@ -67,12 +44,12 @@ func NewWaveWithMaxDuration(wave Wave, duration time.Duration) *WaveWithMaxDurat
 	return &WaveWithMaxDuration{wave: wave, duration: duration}
 }
 
-func (w *WaveWithMaxDuration) Value(freq float64, elapsed time.Duration) (float64, error) {
+func (w *WaveWithMaxDuration) Value(elapsed time.Duration) (float64, error) {
 	if elapsed >= w.duration {
 		return 0.0, ErrEndOfWave
 	}
 
-	return w.wave.Value(freq, elapsed)
+	return w.wave.Value(elapsed)
 }
 
 // A control wave is a wave that produces an output meant to be used as a variable by another another wave.
@@ -80,6 +57,7 @@ func (w *WaveWithMaxDuration) Value(freq float64, elapsed time.Duration) (float6
 type ControlWave struct {
 	fn       maths.InterpolationFunction
 	segments []*ControlWaveSegment
+	loop     bool
 }
 
 // A control wave segment represents one part of a control wave.
@@ -91,23 +69,27 @@ type ControlWaveSegment struct {
 
 // NewControlWave creates a new control wave.
 // The linear interpollation function is used as the fallback interpollation function if none is provided.
-func NewControlWave(fn maths.InterpolationFunction, segments []*ControlWaveSegment) *ControlWave {
+func NewControlWave(fn maths.InterpolationFunction, loop bool, segments []*ControlWaveSegment) *ControlWave {
 	if fn == nil {
 		fn = maths.LinearInterpolation{}
 	}
 
-	return &ControlWave{fn: fn, segments: segments}
+	return &ControlWave{fn: fn, loop: loop, segments: segments}
 }
 
 // Control waves ignore the provided frequency.
 // That's why they are called control waves. They take control.
-func (w *ControlWave) Value(_ float64, x time.Duration) (float64, error) {
+func (w *ControlWave) Value(at time.Duration) (float64, error) {
+	if w.loop {
+		at = time.Duration(math.Mod(float64(at), float64(w.Duration())))
+	}
+
 	elapsed := time.Duration(0)
 	startValue := 0.0
 
 	for _, segment := range w.segments {
 		// continue only if x is not in the current segment
-		if !(x >= elapsed && x < elapsed+segment.Duration) {
+		if !(at >= elapsed && at < elapsed+segment.Duration) {
 			elapsed += segment.Duration
 			startValue = segment.EndValue
 			continue
@@ -119,7 +101,7 @@ func (w *ControlWave) Value(_ float64, x time.Duration) (float64, error) {
 		}
 
 		return w.fn.At(
-			float64(x),
+			float64(at),
 			float64(elapsed),
 			float64(elapsed+segment.Duration),
 			startValue,
@@ -141,79 +123,30 @@ func (w *ControlWave) Duration() time.Duration {
 
 // AmplitudeEnvelope controls the amplitude of a wave over time.
 // This is usually used to make ADSR envelopes.
-type WaveWithAmplitudeEnvelope struct {
+type AmplitudeEnvelope struct {
 	wave        Wave
 	controlWave *ControlWave
 }
 
-func NewWaveWithAmplitudeEnvelope(wave Wave, controlWave *ControlWave) *WaveWithAmplitudeEnvelope {
-	return &WaveWithAmplitudeEnvelope{
+func NewAmplitudeEnvelope(wave Wave, controlWave *ControlWave) *AmplitudeEnvelope {
+	return &AmplitudeEnvelope{
 		wave:        wave,
 		controlWave: controlWave,
 	}
 }
 
-func (w *WaveWithAmplitudeEnvelope) Value(freq float64, x time.Duration) (float64, error) {
-	amplitude, err := w.controlWave.Value(-1, x)
+func (w *AmplitudeEnvelope) Value(x time.Duration) (float64, error) {
+	amplitude, err := w.controlWave.Value(x)
 	if err != nil {
 		return 0.0, fmt.Errorf("unable to get value from control wave: %w", err)
 	}
 
-	val, err := w.wave.Value(freq, x)
+	val, err := w.wave.Value(x)
 	if err != nil {
 		return 0.0, fmt.Errorf("unable to get value from wave: %w", err)
 	}
 
 	return val * amplitude, nil
-}
-
-// FrequencyEnvelope controls the frequency of a wave over time.
-//
-// It multiplies the frequency passed to the wave by the value of the control wave.
-// The control wave should return 1 to keep the same frequency.
-// Numbers above 1 will increase the frequency and below 1 will decrease the frequency.
-type WaveWithFrequencyEnvelope struct {
-	wave        Wave
-	controlWave *ControlWave
-}
-
-func NewWaveWithFrequencyEnvelope(wave Wave, controlWave *ControlWave) *WaveWithFrequencyEnvelope {
-	return &WaveWithFrequencyEnvelope{
-		wave:        wave,
-		controlWave: controlWave,
-	}
-}
-
-func (w *WaveWithFrequencyEnvelope) Value(freq float64, x time.Duration) (float64, error) {
-	// if w.loop {
-	// 	x = time.Duration(math.Mod(float64(x), float64(w.controlWave.Duration())))
-	// }
-
-	ctrlfreq, err := w.controlWave.Value(-1, x)
-	if err != nil {
-		return 0.0, fmt.Errorf("unable to get value from control wave: %w", err)
-	}
-
-	val, err := w.wave.Value(freq*ctrlfreq, x)
-	if err != nil {
-		return 0.0, fmt.Errorf("unable to get value from wave: %w", err)
-	}
-
-	return val, nil
-}
-
-// WaveWithFrequencyMultiplier multiplies the frequency by the multiplier and passes it to the underlying wave.
-type WaveWithFrequencyMultiplier struct {
-	wave       Wave
-	multiplier float64
-}
-
-func NewWaveWithFrequencyMultiplier(wave Wave, multiplier float64) *WaveWithFrequencyMultiplier {
-	return &WaveWithFrequencyMultiplier{wave: wave, multiplier: multiplier}
-}
-
-func (w *WaveWithFrequencyMultiplier) Value(freq float64, at time.Duration) (float64, error) {
-	return w.wave.Value(freq*w.multiplier, at)
 }
 
 // MergedWaves combines several waves into one.
@@ -229,7 +162,7 @@ func NewMergedWaves(waves ...Wave) *MergedWaves {
 func (w *MergedWaves) Value(freq float64, x time.Duration) (float64, error) {
 	out := 0.0
 	for _, wave := range w.waves {
-		val, err := wave.Value(freq, x)
+		val, err := wave.Value(x)
 		if err != nil {
 			return 0.0, err
 		}

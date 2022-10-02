@@ -19,7 +19,7 @@ func TestFFplayPlayer(t *testing.T) {
 	})
 
 	t.Run("Should validate required inputs", func(t *testing.T) {
-		validWave := sound.NewWaveWithMaxDuration(&sound.SineWave{}, time.Second)
+		validWave := sound.NewWaveWithMaxDuration(&sound.MockWave{}, time.Second)
 		var invalidWave sound.Wave = nil
 		validSampleRate := 1
 		invalidSampleRate := 0
@@ -89,7 +89,7 @@ func TestFFplayPlayer(t *testing.T) {
 	t.Run("Should save file only if desired", func(t *testing.T) {
 		filepath := "foo_save_file"
 		player := &FFPlayPlayer{
-			Wave:       sound.NewWaveWithMaxDuration(&sound.SineWave{}, time.Second),
+			Wave:       sound.NewWaveWithMaxDuration(&sound.MockWave{}, time.Second),
 			SampleRate: 44100,
 			Filepath:   filepath,
 			noExec:     true,

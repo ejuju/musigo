@@ -10,9 +10,9 @@ import (
 
 func main() {
 	// Let's make a basic sound that we want to loop.
-	wave := sound.NewWaveWithAmplitudeEnvelope(
-		&sound.SineWave{},
-		sound.NewControlWave(nil, []*sound.ControlWaveSegment{
+	wave := sound.NewAmplitudeEnvelope(
+		sound.NewSynthWave(&sound.Sine{}, music.NoteA4.Hertz()),
+		sound.NewControlWave(nil, false, []*sound.ControlWaveSegment{
 			{Duration: 200 * time.Millisecond, EndValue: 1.0},
 			{Duration: 300 * time.Millisecond},
 		}),
@@ -23,7 +23,7 @@ func main() {
 
 	// set max duration otherwise loop goes on forever.
 	out := sound.NewWaveWithMaxDuration(loop, 16*time.Second)
-	err := audio.FFPlayPlayer{Wave: out, SampleRate: 44100, Freq: 440.00}.Play()
+	err := audio.FFPlayPlayer{Wave: out, SampleRate: 44100}.Play()
 	if err != nil {
 		panic(err)
 	}

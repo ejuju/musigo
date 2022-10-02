@@ -12,11 +12,11 @@ func TestRelativeFrequency(t *testing.T) {
 		semitones float64
 		want      float64
 	}{
-		{root: NoteC3.Frequency(), semitones: 0, want: NoteC3.Frequency()},
-		{root: NoteC3.Frequency(), semitones: 2, want: NoteD3.Frequency()},
-		{root: NoteC3.Frequency(), semitones: -5, want: NoteG2.Frequency()},
-		{root: NoteC3.Frequency(), semitones: 12, want: NoteC4.Frequency()},
-		{root: NoteC3.Frequency(), semitones: 14, want: NoteD4.Frequency()},
+		{root: NoteC3.Hertz(), semitones: 0, want: NoteC3.Hertz()},
+		{root: NoteC3.Hertz(), semitones: 2, want: NoteD3.Hertz()},
+		{root: NoteC3.Hertz(), semitones: -5, want: NoteG2.Hertz()},
+		{root: NoteC3.Hertz(), semitones: 12, want: NoteC4.Hertz()},
+		{root: NoteC3.Hertz(), semitones: 14, want: NoteD4.Hertz()},
 	}
 
 	for i, test := range tests {

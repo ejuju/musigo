@@ -20,7 +20,6 @@ type FFPlayPlayer struct {
 	SampleRate int
 	Filepath   string
 	SaveFile   bool
-	Freq       float64
 	noExec     bool // to prevent ffplay command execution
 }
 
@@ -38,7 +37,7 @@ func (p FFPlayPlayer) Play() error {
 	}
 
 	// get output frames
-	frames, err := Frames(p.Freq, p.Wave, p.SampleRate)
+	frames, err := Frames(p.Wave, p.SampleRate)
 	if err != nil {
 		return fmt.Errorf("failed to get output frames from wave: %w", err)
 	}

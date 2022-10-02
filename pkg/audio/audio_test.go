@@ -14,8 +14,8 @@ func TestFrames(t *testing.T) {
 		wantFrames := []float64{-1.0, 1.0, -1.0, 1.0}
 		sampleRate := 44100
 		// generate frames from a square wave and check if the output frames are what we expect
-		wave := sound.NewWaveWithMaxDuration(&sound.SquareWave{}, time.Duration(len(wantFrames)))
-		frames, _ := Frames(1, wave, sampleRate)
+		wave := sound.NewWaveWithMaxDuration(sound.NewSynthWave(&sound.Square{}, 1), time.Duration(len(wantFrames)))
+		frames, _ := Frames(wave, sampleRate)
 
 		for i, got := range frames {
 			if got != wantFrames[i] {
@@ -37,8 +37,7 @@ func TestFrames(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			osc := &sound.SineWave{}
-			frames, _ := Frames(440, sound.NewWaveWithMaxDuration(osc, test.duration), test.sampleRate)
+			frames, _ := Frames(sound.NewWaveWithMaxDuration(&sound.MockWave{}, test.duration), test.sampleRate)
 			got := len(frames)
 			if got != test.want {
 				t.Fatalf("Got: %d, but wanted: %d", got, test.want)
@@ -47,13 +46,12 @@ func TestFrames(t *testing.T) {
 	})
 
 	t.Run("Should validate required inputs", func(t *testing.T) {
-		validWave := sound.NewWaveWithMaxDuration(&sound.SineWave{}, time.Second)
+		validWave := sound.NewWaveWithMaxDuration(&sound.MockWave{}, time.Second)
 		var invalidWave sound.Wave = nil
 		validSampleRate := 1
 		invalidSampleRate := 0
 
 		tests := []struct {
-			frequency  float64
 			wave       sound.Wave
 			sampleRate int
 			wantErr    bool
@@ -64,7 +62,7 @@ func TestFrames(t *testing.T) {
 		}
 
 		for i, test := range tests {
-			_, err := Frames(test.frequency, test.wave, test.sampleRate)
+			_, err := Frames(test.wave, test.sampleRate)
 			if (err != nil) != test.wantErr {
 				t.Fatalf("unexpected error at index %d, wantErr is %v but got %v", i, test.wantErr, err)
 			}

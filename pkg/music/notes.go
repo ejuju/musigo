@@ -3,9 +3,6 @@ package music
 import (
 	"math"
 	"math/rand"
-	"time"
-
-	"github.com/ejuju/musigo/pkg/sound"
 )
 
 // The constant used in the calculation to define music notes.
@@ -48,34 +45,34 @@ func (n SemitonesFromRoot) Reverse() SemitonesFromRoot {
 	return n
 }
 
-// Wave converts a semitones to a sound.Wave
-func (s SemitonesFromRoot) Arpeggio(wave sound.Wave, durations ...time.Duration) *Loop {
-	segments := []*sound.ControlWaveSegment{}
+// // Wave converts a semitones to a sound.Wave
+// func (s SemitonesFromRoot) Arpeggio(synth sound.Synthesizer, durations ...time.Duration) *Loop {
+// 	segments := []*sound.ControlWaveSegment{}
 
-	for i, gap := range s {
-		duration := durations[i%len(durations)]
-		segments = append(segments, &sound.ControlWaveSegment{
-			Duration:   duration,
-			StartValue: RelativeFrequency(1, gap),
-			EndValue:   RelativeFrequency(1, gap),
-		})
-	}
+// 	for i, gap := range s {
+// 		duration := durations[i%len(durations)]
+// 		segments = append(segments, &sound.ControlWaveSegment{
+// 			Duration:   duration,
+// 			StartValue: RelativeFrequency(1, gap),
+// 			EndValue:   RelativeFrequency(1, gap),
+// 		})
+// 	}
 
-	freqCtrlWave := sound.NewControlWave(nil, segments)
-	totalDur := freqCtrlWave.Duration()
-	return NewLoop(sound.NewWaveWithFrequencyEnvelope(wave, freqCtrlWave), totalDur)
-}
+// 	freqCtrlWave := sound.NewControlWave(nil, segments)
+// 	totalDur := freqCtrlWave.Duration()
+// 	return NewLoop(sound.NewFrequencyEnvelope(synth, freqCtrlWave), totalDur)
+// }
 
-//
-func (s SemitonesFromRoot) Chord(wave sound.Wave) *sound.MergedWaves {
-	waves := []sound.Wave{}
+// //
+// func (s SemitonesFromRoot) Chord(wave sound.Wave) *sound.MergedWaves {
+// 	waves := []sound.Wave{}
 
-	for _, gap := range s {
-		waves = append(waves, sound.NewWaveWithFrequencyMultiplier(wave, RelativeFrequency(1, gap)))
-	}
+// 	for _, gap := range s {
+// 		waves = append(waves, sound.NewWaveWithFrequencyMultiplier(wave, RelativeFrequency(1, gap)))
+// 	}
 
-	return sound.NewMergedWaves(waves...)
-}
+// 	return sound.NewMergedWaves(waves...)
+// }
 
 // All pre-defined chords in one slice.
 var AllChords = []SemitonesFromRoot{

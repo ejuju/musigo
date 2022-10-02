@@ -22,11 +22,11 @@ func NewLoop(wave sound.Wave, iteration time.Duration) *Loop {
 	return &Loop{wave: wave, iterDuration: iteration}
 }
 
-func (w *Loop) Value(freq float64, at time.Duration) (float64, error) {
+func (w *Loop) Value(at time.Duration) (float64, error) {
 	// override current duration
 	at = time.Duration(math.Mod(float64(at), float64(w.iterDuration)))
 
-	val, err := w.wave.Value(freq, at)
+	val, err := w.wave.Value(at)
 	if err != nil {
 		// ignore end of wave for the underlying wave
 		if errors.Is(err, sound.ErrEndOfWave) {
