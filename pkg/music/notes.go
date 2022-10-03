@@ -45,6 +45,14 @@ func (n SemitonesFromRoot) Reverse() SemitonesFromRoot {
 	return n
 }
 
+func (n SemitonesFromRoot) Frequencies(root float64) []float64 {
+	notes := []float64{root}
+	for _, gap := range n {
+		notes = append(notes, RelativeFrequency(root, gap))
+	}
+	return notes
+}
+
 // // Wave converts a semitones to a sound.Wave
 // func (s SemitonesFromRoot) Arpeggio(synth sound.Synthesizer, durations ...time.Duration) *Loop {
 // 	segments := []*sound.ControlWaveSegment{}
@@ -85,11 +93,11 @@ var AllChords = []SemitonesFromRoot{
 
 // Common chords are defined as relative semitones intervals.
 var (
-	ChordMajor  = SemitonesFromRoot{0, 3, 5}
-	ChordMinor  = SemitonesFromRoot{0, 2, 5}
-	ChordMajor7 = SemitonesFromRoot{0, 3, 5, 10}
-	ChordMinor7 = SemitonesFromRoot{0, 2, 3, 10}
-	Chord5      = SemitonesFromRoot{0, 5}
+	ChordMajor  = SemitonesFromRoot{3, 5}
+	ChordMinor  = SemitonesFromRoot{2, 5}
+	ChordMajor7 = SemitonesFromRoot{3, 5, 10}
+	ChordMinor7 = SemitonesFromRoot{2, 3, 10}
+	Chord5      = SemitonesFromRoot{5}
 )
 
 // All pre-defined scales in one slice.
@@ -101,8 +109,8 @@ var AllScales = []SemitonesFromRoot{
 }
 
 var (
-	HarmonicMajorScale   = SemitonesFromRoot{0, 2, 4, 5, 7, 9, 11}
-	HarmonicMinorScale   = SemitonesFromRoot{0, 2, 3, 5, 7, 8, 11}
-	PentatonicMinorScale = SemitonesFromRoot{0, 3, 5, 7, 10}
-	BluesMinorScale      = SemitonesFromRoot{0, 3, 5, 6, 7, 10}
+	HarmonicMajorScale   = SemitonesFromRoot{2, 4, 5, 7, 9, 11}
+	HarmonicMinorScale   = SemitonesFromRoot{2, 3, 5, 7, 8, 11}
+	PentatonicMinorScale = SemitonesFromRoot{3, 5, 7, 10}
+	BluesMinorScale      = SemitonesFromRoot{3, 5, 6, 7, 10}
 )

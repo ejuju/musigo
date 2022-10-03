@@ -11,6 +11,28 @@ import (
 	"github.com/ejuju/musigo/pkg/sound"
 )
 
+// WaveWithDeadline provides the value of the underlying wave until
+// the provided duration is reached, after which it returns false as the second return value.
+// The underlying wave can still return false eventhough the deadline as not been reached yet.
+type WaveWithDeadline struct {
+	wave     sound.Wave
+	duration time.Duration
+}
+
+// WithDeadline creates a new wave with a predefined duration.
+// The underlying wave will stop producing a signal when the provided time duration has been reached.
+func withDeadline(wave sound.Wave, duration time.Duration) *WaveWithDeadline {
+	return &WaveWithDeadline{wave: wave, duration: duration}
+}
+
+func (w *WaveWithDeadline) Value(elapsed time.Duration) (float64, error) {
+	if elapsed >= w.duration {
+		return 0.0, sound.ErrEndOfWave
+	}
+
+	return w.wave.Value(elapsed)
+}
+
 func TestFFplayPlayer(t *testing.T) {
 	t.Parallel()
 
@@ -19,7 +41,7 @@ func TestFFplayPlayer(t *testing.T) {
 	})
 
 	t.Run("Should validate required inputs", func(t *testing.T) {
-		validWave := sound.NewWaveWithMaxDuration(&sound.MockWave{}, time.Second)
+		validWave := withDeadline(&sound.MockWave{}, time.Second)
 		var invalidWave sound.Wave = nil
 		validSampleRate := 1
 		invalidSampleRate := 0
@@ -89,7 +111,7 @@ func TestFFplayPlayer(t *testing.T) {
 	t.Run("Should save file only if desired", func(t *testing.T) {
 		filepath := "foo_save_file"
 		player := &FFPlayPlayer{
-			Wave:       sound.NewWaveWithMaxDuration(&sound.MockWave{}, time.Second),
+			Wave:       withDeadline(&sound.MockWave{}, time.Second),
 			SampleRate: 44100,
 			Filepath:   filepath,
 			noExec:     true,

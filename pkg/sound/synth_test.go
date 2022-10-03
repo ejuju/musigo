@@ -23,8 +23,8 @@ func TestSynthesizers(t *testing.T) {
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%s should return the same value at two points separated by a \"cycle\"", test.oscName), func(t *testing.T) {
 			for i := -1; i < 3; i++ {
-				val0 := test.osc.Synthesize(float64(i), 0)                            // value at start for a float64 of 1 hertz
-				val1 := test.osc.Synthesize(float64(i), time.Second*time.Duration(i)) // value after 1 second for a float64 of 1 hertz
+				val0, _ := test.osc.Synthesize(float64(i), 0)                            // value at start for a float64 of 1 hertz
+				val1, _ := test.osc.Synthesize(float64(i), time.Second*time.Duration(i)) // value after 1 second for a float64 of 1 hertz
 
 				precisionWithinRange := 0.001
 				if math.Abs(val0-val1) > precisionWithinRange {
@@ -51,7 +51,7 @@ func TestSine(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got := (&Sine{}).Synthesize(test.freq, test.at)
+		got, _ := (&Sine{}).Synthesize(test.freq, test.at)
 		if math.Abs(got-test.want) > 0.0001 {
 			t.Fatalf("Unexpected value, got %f but want %f", got, test.want)
 		}
@@ -74,7 +74,7 @@ func TestSquare(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got := (&Square{}).Synthesize(test.freq, test.at)
+		got, _ := (&Square{}).Synthesize(test.freq, test.at)
 		if math.Abs(got-test.want) > 0.0001 {
 			t.Fatalf("Unexpected value, got %f but want %f", got, test.want)
 		}
@@ -96,7 +96,7 @@ func TestSawTooth(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got := (&SawTooth{}).Synthesize(test.freq, test.at)
+		got, _ := (&SawTooth{}).Synthesize(test.freq, test.at)
 		if math.Abs(got-test.want) > 0.0001 {
 			t.Fatalf("Unexpected value, got %f but want %f", got, test.want)
 		}
