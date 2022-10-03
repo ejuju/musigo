@@ -11,6 +11,7 @@ import (
 type Track struct {
 	synth     sound.Synthesizer
 	trackFunc TrackFunc
+	effects   []sound.Effect
 }
 
 // TrackFunc is a callback function that gets called when the track gets played.
@@ -23,8 +24,8 @@ type Controller struct {
 }
 
 // NewTrack creates a new track.
-func NewTrack(synth sound.Synthesizer, trackFunc TrackFunc) *Track {
-	return &Track{synth: synth, trackFunc: trackFunc}
+func NewTrack(synth sound.Synthesizer, trackFunc TrackFunc, baseEffects ...sound.Effect) *Track {
+	return &Track{synth: synth, trackFunc: trackFunc, effects: baseEffects}
 }
 
 // Tracks is a map of track IDs and their corresponding track.
@@ -50,7 +51,7 @@ func (c *Controller) Play(duration time.Duration, effects []sound.Effect, freqs 
 	var wave sound.Wave = sound.NewMergedWaves(waves...)
 
 	// wrap effects around wave
-	for _, effect := range effects {
+	for _, effect := range append(effects, c.t.effects...) {
 		wave = effect.Wrap(wave)
 	}
 
