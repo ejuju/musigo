@@ -22,14 +22,14 @@ var ErrEndOfWave = errors.New("end of wave")
 // Useful for testing and debugging.
 type MockWave struct{}
 
-func (w *MockWave) Value(at time.Duration) (float64, error) {
+func (w MockWave) Value(at time.Duration) (float64, error) {
 	return 1.0, nil
 }
 
 // SilentWave implements the Wave interface but produces no sound.
 type SilentWave struct{}
 
-func (w *SilentWave) Value(at time.Duration) (float64, error) {
+func (w SilentWave) Value(at time.Duration) (float64, error) {
 	return 0, nil
 }
 
@@ -39,11 +39,11 @@ type MergedWaves struct {
 	waves []Wave
 }
 
-func NewMergedWaves(waves ...Wave) *MergedWaves {
-	return &MergedWaves{waves: waves}
+func NewMergedWaves(waves ...Wave) MergedWaves {
+	return MergedWaves{waves: waves}
 }
 
-func (w *MergedWaves) Value(x time.Duration) (float64, error) {
+func (w MergedWaves) Value(x time.Duration) (float64, error) {
 	out := 0.0
 	for _, wave := range w.waves {
 		val, err := wave.Value(x)

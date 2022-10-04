@@ -1,6 +1,7 @@
 package sound
 
 import (
+	"math"
 	"time"
 )
 
@@ -9,11 +10,11 @@ import (
 //
 // You must call NewPattern to create a pattern.
 type Pattern struct {
-	segments []*PatternSegment
+	segments []PatternSegment
 }
 
 // NewPattern instanciates a pattern.
-func NewPattern(segments []*PatternSegment) *Pattern {
+func NewPattern(segments []PatternSegment) *Pattern {
 	return &Pattern{segments: segments}
 }
 
@@ -23,7 +24,9 @@ type PatternSegment struct {
 	Wave     Wave
 }
 
-func (p *Pattern) Value(x time.Duration) (float64, error) {
+func (p Pattern) Value(x time.Duration) (float64, error) {
+	x = time.Duration(math.Mod(float64(x), float64(p.Duration())))
+
 	countDuration := time.Duration(0.0)
 	for _, segment := range p.segments {
 		if !(x >= countDuration && x < countDuration+segment.Duration) {
@@ -45,7 +48,7 @@ func (p *Pattern) Value(x time.Duration) (float64, error) {
 }
 
 // Returns the total duration of the pattern segments
-func (p *Pattern) Duration() time.Duration {
+func (p Pattern) Duration() time.Duration {
 	out := time.Duration(0)
 	for _, segment := range p.segments {
 		out += segment.Duration
@@ -57,8 +60,8 @@ func (p *Pattern) Duration() time.Duration {
 // If you pass a value of 0, the output pattern will be empty.
 // If you pass a value of 1, the output pattern will stay the same.
 // If you pass a value of 2, the output pattern is 2 times the input.
-func (p *Pattern) Repeat(times int) *Pattern {
-	segments := []*PatternSegment{}
+func (p Pattern) Repeat(times int) Pattern {
+	segments := []PatternSegment{}
 	for i := 0; i < times; i++ {
 		segments = append(segments, p.segments...)
 	}

@@ -23,7 +23,7 @@ func TestBPM(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			val := test.bpm.Beats(test.beats).Seconds()
+			val := test.bpm.Time(test.beats).Seconds()
 			if math.Abs(val-test.wantSec) > 0.001 {
 				t.Fatalf("Want: %.5fs, got: %.5fs", test.wantSec, val)
 			}

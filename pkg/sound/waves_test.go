@@ -11,14 +11,14 @@ func TestControlWave(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Should create a wave going to certain values", func(t *testing.T) {
-		controlWaveSegments := []*ControlWaveSegment{
+		controlWaveSegments := []AmplitudeEnvelopeSegment{
 			{Duration: time.Second, EndValue: 1.0},
 			{Duration: time.Second, EndValue: 0.3},
 			{Duration: time.Second, EndValue: 0.7},
 			{Duration: time.Second, EndValue: 0.0},
 		}
 
-		ctrlwave := NewControlWave(maths.LinearInterpolation{}, 0, controlWaveSegments)
+		ctrlwave := WithAmplitude(maths.LinearInterpolation{}, 0, controlWaveSegments...)
 		durCount := time.Duration(0)
 
 		// outer loop to make sure control wave repeats itself at least twice
@@ -51,14 +51,14 @@ func TestWaveWithAmplitudeEnvelope(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Should apply desired amplitude envelope to a given wave", func(t *testing.T) {
-		segments := []*ControlWaveSegment{
+		segments := []AmplitudeEnvelopeSegment{
 			{Duration: time.Second, EndValue: 1.0},
 			{Duration: time.Second, EndValue: 1.0},
 			{Duration: time.Second, EndValue: 0.4},
 			{Duration: time.Second, EndValue: 0.0},
 		}
 
-		testwave := NewAmplitudeEnvelope(NewControlWave(nil, 0, segments)).Wrap(&MockWave{})
+		testwave := WithAmplitude(nil, 0, segments...).Wrap(&MockWave{})
 
 		countDur := time.Duration(0)
 		for _, segment := range segments {

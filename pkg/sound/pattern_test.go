@@ -14,7 +14,7 @@ func TestPattern(t *testing.T) {
 		osc2 := NewSynthWave(&Square{}, 440.0)
 		osc3 := NewSynthWave(&SawTooth{}, 440.0)
 		oscillationsInSegmentOrder := []Wave{osc1, osc2, osc3}
-		segments := []*PatternSegment{
+		segments := []PatternSegment{
 			{Duration: time.Second, Wave: osc1},
 			{Duration: time.Second, Wave: osc2},
 			{Duration: time.Second, Wave: osc3},
@@ -38,7 +38,7 @@ func TestPattern(t *testing.T) {
 	})
 
 	t.Run("Should return the right duration", func(t *testing.T) {
-		pattern := NewPattern([]*PatternSegment{
+		pattern := NewPattern([]PatternSegment{
 			{Duration: 7 * time.Second},
 			{Duration: 4 * time.Second},
 		})
@@ -53,7 +53,7 @@ func TestPattern(t *testing.T) {
 	t.Run("Should report pattern end in call to wave value function", func(t *testing.T) {
 		osc1 := NewSynthWave(&Sine{}, 440.0)
 		osc2 := NewSynthWave(&Sine{}, 440.0)
-		pattern := NewPattern([]*PatternSegment{
+		pattern := NewPattern([]PatternSegment{
 			{Duration: 1 * time.Second, Wave: osc1},
 			{Duration: 3 * time.Second, Wave: osc2},
 		})
@@ -69,7 +69,7 @@ func TestPattern(t *testing.T) {
 	})
 
 	t.Run("Should be able to repeat itself", func(t *testing.T) {
-		pattern := NewPattern([]*PatternSegment{
+		pattern := NewPattern([]PatternSegment{
 			{Duration: 1 * time.Second},
 		})
 

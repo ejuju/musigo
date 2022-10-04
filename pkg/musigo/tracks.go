@@ -19,22 +19,22 @@ type TrackFunc func(*Controller)
 
 // Controller allows users to control a song.
 type Controller struct {
-	t        *Track
-	segments []*sound.PatternSegment
+	t        Track
+	segments []sound.PatternSegment
 }
 
 // NewTrack creates a new track.
-func NewTrack(synth sound.Synthesizer, trackFunc TrackFunc, baseEffects ...sound.Effect) *Track {
-	return &Track{synth: synth, trackFunc: trackFunc, effects: baseEffects}
+func NewTrack(synth sound.Synthesizer, trackFunc TrackFunc, baseEffects ...sound.Effect) Track {
+	return Track{synth: synth, trackFunc: trackFunc, effects: baseEffects}
 }
 
 // Tracks is a map of track IDs and their corresponding track.
-type Tracks map[string]*Track
+type Tracks map[string]Track
 
-func (tracks Tracks) Merge() *sound.MergedWaves {
+func (tracks Tracks) Merge() sound.MergedWaves {
 	waves := []sound.Wave{}
 	for _, track := range tracks {
-		controller := &Controller{segments: []*sound.PatternSegment{}, t: track}
+		controller := &Controller{segments: []sound.PatternSegment{}, t: track}
 		track.trackFunc(controller)
 		// wrap effects around wave
 		var wave sound.Wave = sound.NewPattern(controller.segments)
@@ -60,7 +60,7 @@ func (c *Controller) Play(duration time.Duration, effects []sound.Effect, freqs 
 	}
 
 	// add segment to controller
-	c.segments = append(c.segments, &sound.PatternSegment{
+	c.segments = append(c.segments, sound.PatternSegment{
 		Duration: duration,
 		Wave:     wave,
 	})
@@ -70,8 +70,8 @@ func (c *Controller) Play(duration time.Duration, effects []sound.Effect, freqs 
 // if duration == 0, then will sleep until the end of the track.
 func (c *Controller) Wait(duration time.Duration) {
 	// add segment to controller
-	c.segments = append(c.segments, &sound.PatternSegment{
+	c.segments = append(c.segments, sound.PatternSegment{
 		Duration: duration,
-		Wave:     &sound.SilentWave{},
+		Wave:     sound.SilentWave{},
 	})
 }
