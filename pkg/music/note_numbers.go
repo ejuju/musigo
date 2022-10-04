@@ -3,8 +3,8 @@ package music
 // NoteNumber represents the MIDI notation compliant number attributed to notes.
 type NoteNumber int
 
-// Hertz returns the frequency that corresponds to the given note.
-func (n NoteNumber) Hertz() float64 {
+// Hz returns the frequency (in hertz) corresponding to the given note.
+func (n NoteNumber) Hz() float64 {
 	return RelativeFrequency(440.00, float64(n)-69.00)
 }
 

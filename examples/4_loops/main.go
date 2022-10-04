@@ -11,7 +11,7 @@ import (
 func main() {
 	// Let's make a basic sound that we want to loop.
 	wave := sound.NewAmplitudeEnvelope(
-		sound.NewSynthWave(&sound.Sine{}, music.NoteA4.Hertz()),
+		sound.NewSynthWave(&sound.Sine{}, music.NoteA4.Hz()),
 		sound.NewControlWave(nil, false, []*sound.ControlWaveSegment{
 			{Duration: 200 * time.Millisecond, EndValue: 1.0},
 			{Duration: 300 * time.Millisecond},

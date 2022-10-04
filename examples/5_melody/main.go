@@ -17,10 +17,10 @@ func main() {
 	wave := sound.NewFrequencyEnvelope(
 		&sound.Sine{},
 		sound.NewControlWave(nil, false, []*sound.ControlWaveSegment{
-			{Duration: noteDuration * 4, StartValue: music.NoteA4.Hertz(), EndValue: music.NoteA4.Hertz()},
-			{Duration: noteDuration * 4, StartValue: music.NoteB4.Hertz(), EndValue: music.NoteB4.Hertz()},
-			{Duration: noteDuration * 4, StartValue: music.NoteD4.Hertz(), EndValue: music.NoteD4.Hertz()},
-			{Duration: noteDuration * 4, StartValue: music.NoteE4.Hertz(), EndValue: music.NoteE4.Hertz()},
+			{Duration: noteDuration * 4, StartValue: music.NoteA4.Hz(), EndValue: music.NoteA4.Hz()},
+			{Duration: noteDuration * 4, StartValue: music.NoteB4.Hz(), EndValue: music.NoteB4.Hz()},
+			{Duration: noteDuration * 4, StartValue: music.NoteD4.Hz(), EndValue: music.NoteD4.Hz()},
+			{Duration: noteDuration * 4, StartValue: music.NoteE4.Hz(), EndValue: music.NoteE4.Hz()},
 		}),
 	)
 

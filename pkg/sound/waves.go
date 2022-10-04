@@ -48,6 +48,10 @@ func (w *MergedWaves) Value(x time.Duration) (float64, error) {
 	for _, wave := range w.waves {
 		val, err := wave.Value(x)
 		if err != nil {
+			if errors.Is(err, ErrEndOfWave) {
+				out += 0
+				continue
+			}
 			return 0.0, err
 		}
 		out += val

@@ -17,7 +17,7 @@ func TestNoteNumbers(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			got := float64(test.note.Hertz())
+			got := float64(test.note.Hz())
 			if math.Abs(got-test.wantFreq) > 0.01 {
 				t.Fatalf("For note: %d, got: %f but wanted: %f", test.note, got, test.wantFreq)
 			}

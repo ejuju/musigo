@@ -26,7 +26,7 @@ type Player interface {
 
 // Frames returns audio frames generated using the provided sound wave.
 // The provided sample rate is in number of frames per second (= hertz).
-func Frames(wave sound.Wave, sampleRate int) ([]float64, error) {
+func Frames(wave sound.Wave, sampleRate int, startOffset, duration time.Duration) ([]float64, error) {
 	if wave == nil {
 		return nil, errors.New("wave is not defined, unable to get frames")
 	}
@@ -35,14 +35,10 @@ func Frames(wave sound.Wave, sampleRate int) ([]float64, error) {
 	}
 
 	frames := []float64{}
-	for i := 0; true; i++ {
-		x := float64(int(time.Second)*i) / float64(sampleRate) // current elapsed time passed to wave
-
-		val, err := wave.Value(time.Duration(x))
+	step := float64(time.Second) / float64(sampleRate)
+	for i := float64(startOffset); i < float64(startOffset+duration); i += step {
+		val, err := wave.Value(time.Duration(i))
 		if err != nil {
-			if errors.Is(err, sound.ErrEndOfWave) {
-				break
-			}
 			return nil, err
 		}
 

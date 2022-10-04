@@ -14,7 +14,7 @@ func main() {
 	bpm := music.BPM(120.0)
 
 	wave := sound.NewWaveWithMaxDuration(
-		sound.NewSynthWave(&sound.Sine{}, music.NoteA4.Hertz()),
+		sound.NewSynthWave(&sound.Sine{}, music.NoteA4.Hz()),
 		bpm.Beats(4), // You can call bpm.Beats() to convert any number of beats into a duration.
 	)
 

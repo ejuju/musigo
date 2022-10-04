@@ -18,7 +18,7 @@ func TestControlWave(t *testing.T) {
 			{Duration: time.Second, EndValue: 0.0},
 		}
 
-		ctrlwave := NewControlWave(maths.LinearInterpolation{}, controlWaveSegments)
+		ctrlwave := NewControlWave(maths.LinearInterpolation{}, 0, controlWaveSegments)
 		durCount := time.Duration(0)
 
 		// outer loop to make sure control wave repeats itself at least twice
@@ -58,7 +58,7 @@ func TestWaveWithAmplitudeEnvelope(t *testing.T) {
 			{Duration: time.Second, EndValue: 0.0},
 		}
 
-		testwave := NewAmplitudeEnvelope(NewControlWave(nil, segments)).Wrap(&MockWave{})
+		testwave := NewAmplitudeEnvelope(NewControlWave(nil, 0, segments)).Wrap(&MockWave{})
 
 		countDur := time.Duration(0)
 		for _, segment := range segments {

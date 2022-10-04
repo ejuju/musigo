@@ -36,7 +36,12 @@ func (tracks Tracks) Merge() *sound.MergedWaves {
 	for _, track := range tracks {
 		controller := &Controller{segments: []*sound.PatternSegment{}, t: track}
 		track.trackFunc(controller)
-		waves = append(waves, sound.NewPattern(controller.segments))
+		// wrap effects around wave
+		var wave sound.Wave = sound.NewPattern(controller.segments)
+		for _, effect := range track.effects {
+			wave = effect.Wrap(wave)
+		}
+		waves = append(waves, wave)
 	}
 	return sound.NewMergedWaves(waves...)
 }
@@ -49,9 +54,8 @@ func (c *Controller) Play(duration time.Duration, effects []sound.Effect, freqs 
 		waves = append(waves, sound.NewSynthWave(c.t.synth, freq))
 	}
 	var wave sound.Wave = sound.NewMergedWaves(waves...)
-
 	// wrap effects around wave
-	for _, effect := range append(effects, c.t.effects...) {
+	for _, effect := range effects {
 		wave = effect.Wrap(wave)
 	}
 

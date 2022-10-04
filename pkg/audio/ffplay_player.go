@@ -16,11 +16,13 @@ import (
 // It produces a .pcm file under the hood to encode the output sound wave.
 // This file can be saved by setting the SaveFile field to true.
 type FFPlayPlayer struct {
-	Wave       sound.Wave
-	SampleRate int
-	Filepath   string
-	SaveFile   bool
-	noExec     bool // to prevent ffplay command execution
+	Wave                sound.Wave
+	SampleRate          int
+	DurationStartOffset time.Duration
+	Duration            time.Duration
+	Filepath            string
+	SaveFile            bool
+	noExec              bool // to prevent ffplay command execution
 }
 
 var ErrFFPlayCommand = errors.New("failed to execute ffplay command")
@@ -35,9 +37,12 @@ func (p FFPlayPlayer) Play() error {
 	if p.Wave == nil {
 		return errors.New("no wave was provided")
 	}
+	if p.Duration <= 0 {
+		return fmt.Errorf("invalid duration: %s", p.Duration)
+	}
 
 	// get output frames
-	frames, err := Frames(p.Wave, p.SampleRate)
+	frames, err := Frames(p.Wave, p.SampleRate, p.DurationStartOffset, p.Duration)
 	if err != nil {
 		return fmt.Errorf("failed to get output frames from wave: %w", err)
 	}

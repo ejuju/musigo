@@ -13,74 +13,55 @@ func RelativeFrequency(root float64, semitones float64) float64 {
 	return float64(root) * math.Pow(MusicalConstant, semitones)
 }
 
-// Semitones represents the semitones "gaps" between notes of a music scale or chord.
-type SemitonesFromRoot []float64
+type Notes []float64
 
 // Octave returns notes containing the octaves passed as inputs.
 // Pass zero in the inputs if you want to include the original notes in the output.
-func (s SemitonesFromRoot) Octave(octaves ...float64) SemitonesFromRoot {
-	out := SemitonesFromRoot{}
+func (n Notes) Octave(octaves ...float64) Notes {
+	out := Notes{}
 	for _, oct := range octaves {
-		for _, note := range s {
-			out = append(out, note+12*oct)
+		for _, note := range n {
+			out = append(out, RelativeFrequency(note, 12*oct))
 		}
 	}
 	return out
 }
 
 // Shuffle randomly changes the order of notes.
-func (s SemitonesFromRoot) Shuffle(randSeed int64) SemitonesFromRoot {
+func (n Notes) Shuffle(randSeed int64) Notes {
 	r := rand.New(rand.NewSource(randSeed))
-	r.Shuffle(len(s), func(i, j int) {
-		s[i], s[j] = s[j], s[i]
+	r.Shuffle(len(n), func(i, j int) {
+		n[i], n[j] = n[j], n[i]
 	})
-	return s
+	return n
 }
 
 // Reverse returns notes in the opposite order.
-func (n SemitonesFromRoot) Reverse() SemitonesFromRoot {
+func (n Notes) Reverse() Notes {
 	for i, j := 0, len(n)-1; i < j; i, j = i+1, j-1 {
 		n[i], n[j] = n[j], n[i]
 	}
 	return n
 }
 
-func (n SemitonesFromRoot) Frequencies(root float64) []float64 {
-	notes := []float64{root}
+// Repeat returns notes in the opposite order.
+func (n Notes) Repeat(times int) Notes {
+	for i := 0; i < times; i++ {
+		n = append(n, n...)
+	}
+	return n
+}
+
+// Semitones represents the semitones "gaps" between notes of a music scale or chord.
+type SemitonesFromRoot []float64
+
+func (n SemitonesFromRoot) Notes(root float64) Notes {
+	notes := Notes{root}
 	for _, gap := range n {
 		notes = append(notes, RelativeFrequency(root, gap))
 	}
 	return notes
 }
-
-// // Wave converts a semitones to a sound.Wave
-// func (s SemitonesFromRoot) Arpeggio(synth sound.Synthesizer, durations ...time.Duration) *Loop {
-// 	segments := []*sound.ControlWaveSegment{}
-
-// 	for i, gap := range s {
-// 		duration := durations[i%len(durations)]
-// 		segments = append(segments, &sound.ControlWaveSegment{
-// 			Duration:   duration,
-// 			StartValue: RelativeFrequency(1, gap),
-// 			EndValue:   RelativeFrequency(1, gap),
-// 		})
-// 	}
-
-// 	freqCtrlWave := sound.NewControlWave(nil, segments)
-// 	totalDur := freqCtrlWave.Duration()
-// 	return NewLoop(sound.NewFrequencyEnvelope(synth, freqCtrlWave), totalDur)
-// }
-
-// //
-// func (s SemitonesFromRoot) Chord(wave sound.Wave) *sound.MergedWaves {
-// 	waves := []sound.Wave{}
-
-// 	for _, gap := range s {
-// 		waves = append(waves, sound.NewWaveWithFrequencyMultiplier(wave, RelativeFrequency(1, gap)))
-// 	}
-
-// 	return sound.NewMergedWaves(waves...)
-// }
 
 // All pre-defined chords in one slice.
 var AllChords = []SemitonesFromRoot{

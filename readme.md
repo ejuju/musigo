@@ -20,44 +20,64 @@ Basic example:
 // main.go
 package main
 
+import (
+	"github.com/ejuju/musigo/pkg/audio"
+	"github.com/ejuju/musigo/pkg/music"
+	"github.com/ejuju/musigo/pkg/musigo"
+	"github.com/ejuju/musigo/pkg/sound"
+)
+
+var (
+	bpm    = music.BPM(120)
+	key    = music.NoteA4
+	chords = []music.Notes{
+		music.ChordMajor7.Notes(key.Hz()).Repeat(2)[:8],
+		music.ChordMinor.Notes((key + 2).Hz()).Repeat(2)[:8],
+		music.ChordMinor.Notes((key + 2).Hz()).Repeat(2)[:8],
+		music.ChordMinor7.Notes((key + 2).Hz()).Repeat(2)[:8],
+	}
+)
+
+var basslineTrack = musigo.NewTrack(&sound.SawTooth{}, func(c *musigo.Controller) {
+	for i := 0; i < 8; i++ {
+		c.Play(bpm.Beats(6), nil, chords[0].Octave(-3)[0])
+		c.Wait(bpm.Beats(2))
+	}
+},
+	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0, []*sound.ControlWaveSegment{
+		{Duration: bpm.Beats(16), EndValue: 0.1},
+		{Duration: bpm.Beats(32 * 4), EndValue: 0.1},
+		{Duration: bpm.Beats(8)},
+		{Duration: bpm.Beats(8)},
+	})),
+)
+
+var chordsTrack = musigo.NewTrack(&sound.Sine{}, func(c *musigo.Controller) {
+	for i := 0; i < 16; i++ {
+		for _, notes := range chords {
+			c.Play(bpm.Beats(8), nil, notes...)
+		}
+	}
+},
+	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0, []*sound.ControlWaveSegment{
+		{Duration: bpm.Beats(1), EndValue: 0.6},
+		{Duration: bpm.Beats(7)},
+	})),
+)
+
 func main() {
-	var bpm = music.BPM(120)
-
-	chords := [][]float64{
-		music.ChordMajor7.Octave(0, 1, 2).Frequencies(music.NoteA3.Hertz())[:8],
-		music.ChordMinor.Octave(0, 1).Frequencies(music.NoteA4.Hertz())[:8],
-		music.ChordMinor7.Octave(0, 1).Frequencies(music.NoteA4.Hertz())[:8],
-		music.ChordMajor.Octave(0, 1).Frequencies(music.NoteC4.Hertz())[:8],
-	}
-
 	tracks := musigo.Tracks{
-		"arpeggio": musigo.NewTrack(&sound.Sine{}, func(c *musigo.Controller) {
-			for _, notes := range chords {
-				for _, note := range notes {
-					c.Play(bpm.Beats(0.5), []sound.Effect{
-						sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, []*sound.ControlWaveSegment{
-							{Duration: bpm.Beats(0.25), EndValue: 1.0},
-							{Duration: bpm.Beats(0.25)},
-						})),
-					}, note)
-				}
-			}
-		}),
-		"bassline": musigo.NewTrack(&sound.SawTooth{}, func(c *musigo.Controller) {
-			for i := 0; i < 16; i++ {
-				for _, notes := range chords {
-					c.Play(bpm.Beats(1), []sound.Effect{
-						sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, []*sound.ControlWaveSegment{
-							{Duration: bpm.Beats(0.5), EndValue: 1.0},
-							{Duration: bpm.Beats(0.5)},
-						})),
-					}, notes[0])
-				}
-			}
-		}),
+		"bassline": basslineTrack,
+		"chords":   chordsTrack,
 	}
 
-	err := audio.FFPlayPlayer{Wave: tracks.Merge(), SampleRate: 44100}.Play()
+	player := audio.FFPlayPlayer{
+		Wave:       tracks.Merge(),
+		Duration:   bpm.Beats(32),
+		SampleRate: 44100,
+	}
+
+	err := player.Play()
 	if err != nil {
 		panic(err)
 	}
@@ -84,6 +104,7 @@ func main() {
     - [ ] Decode WAV to PCM
     - [ ] Encode PCM to WAV
     - [ ] Provide percussion audio samples (with go embed)
+	- [ ] Add live player for real-time audio processing
 - Music:
     - [x] Handle loops
     - [ ] Provide notes

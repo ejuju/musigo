@@ -14,7 +14,7 @@ func main() {
 	// This example shows how you can make a simple ADSR envelope.
 	// This is done using a control wave that will control the amplitude of another wave.
 	wave := sound.NewAmplitudeEnvelope(
-		sound.NewSynthWave(&sound.Sine{}, music.NoteC5.Hertz()),
+		sound.NewSynthWave(&sound.Sine{}, music.NoteC5.Hz()),
 		sound.NewControlWave(nil, false, []*sound.ControlWaveSegment{
 			{Duration: 800 * time.Millisecond, EndValue: 1.0}, // attack
 			{Duration: 500 * time.Millisecond, EndValue: 0.7}, // decay
