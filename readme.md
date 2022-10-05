@@ -38,31 +38,25 @@ var (
 	}
 )
 
-var basslineTrack = musigo.NewTrack(&sound.SawTooth{}, func(c *musigo.Controller) {
-	for i := 0; i < 8; i++ {
+var basslineTrack = musigo.NewTrack(sound.SawTooth{}, func(c *musigo.Controller) {
 		c.Play(bpm.Beats(6), nil, chords[0].Octave(-3)[0])
 		c.Wait(bpm.Beats(2))
-	}
 },
-	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0, []*sound.ControlWaveSegment{
-		{Duration: bpm.Beats(16), EndValue: 0.1},
-		{Duration: bpm.Beats(32 * 4), EndValue: 0.1},
-		{Duration: bpm.Beats(8)},
-		{Duration: bpm.Beats(8)},
-	})),
+	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0).
+		Append(bpm.Beats(16), 0.1).
+		Append(bpm.Beats(32 * 4), 0.1).
+		Append(bpm.Beats(8), 0).
+		Append(bpm.Beats(8), 0),
 )
 
-var chordsTrack = musigo.NewTrack(&sound.Sine{}, func(c *musigo.Controller) {
-	for i := 0; i < 16; i++ {
+var chordsTrack = musigo.NewTrack(sound.Sine{}, func(c *musigo.Controller) {
 		for _, notes := range chords {
 			c.Play(bpm.Beats(8), nil, notes...)
 		}
-	}
 },
-	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0, []*sound.ControlWaveSegment{
-		{Duration: bpm.Beats(1), EndValue: 0.6},
-		{Duration: bpm.Beats(7)},
-	})),
+	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0).
+		Append(bpm.Beats(1), 0.6).
+		Append(bpm.Beats(7), 0),
 )
 
 func main() {
