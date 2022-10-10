@@ -15,12 +15,11 @@ func main() {
 	// Create a wave that lasts one second and plays a 440.00 hertz frequency sound using a sine oscillator.
 	// You can try changing the oscillator and the duration.
 	osc := sound.NewSynthWave(&sound.Sine{}, 440.00)
-	wave := sound.NewWaveWithMaxDuration(osc, time.Second)
 
 	// Play wave with ffplay.
 	// (make sure ffplay is installed to play this example)
 	// You can try changing the frequency.
-	err := audio.FFPlayPlayer{Wave: wave, SampleRate: 44100, SaveFile: true}.Play()
+	err := audio.FFPlayPlayer{Wave: osc, SampleRate: 44100, SaveFile: true, Duration: time.Second}.Play()
 	if err != nil {
 		panic(err)
 	}

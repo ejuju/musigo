@@ -1,7 +1,6 @@
 package sound
 
 import (
-	"errors"
 	"testing"
 	"time"
 )
@@ -31,10 +30,6 @@ func TestPattern(t *testing.T) {
 			}
 			durCount += segment.Duration
 		}
-
-		if _, err := pattern.Value(pattern.Duration() + 1); !errors.Is(err, ErrEndOfWave) {
-			t.Fatal("pattern should have ended")
-		}
 	})
 
 	t.Run("Should return the right duration", func(t *testing.T) {
@@ -47,24 +42,6 @@ func TestPattern(t *testing.T) {
 		want := 11 * time.Second
 		if got != want {
 			t.Fatalf("Got %s, want %s", got, want)
-		}
-	})
-
-	t.Run("Should report pattern end in call to wave value function", func(t *testing.T) {
-		osc1 := NewSynthWave(&Sine{}, 440.0)
-		osc2 := NewSynthWave(&Sine{}, 440.0)
-		pattern := NewPattern([]PatternSegment{
-			{Duration: 1 * time.Second, Wave: osc1},
-			{Duration: 3 * time.Second, Wave: osc2},
-		})
-
-		_, gotErrBeforeEnd := pattern.Value(3 * time.Second)
-		if gotErrBeforeEnd != nil {
-			t.Fatal("should not get error yet")
-		}
-		_, gotErrAfterEnd := pattern.Value(5 * time.Second)
-		if !errors.Is(gotErrAfterEnd, ErrEndOfWave) {
-			t.Fatal("should have gotten error end of wave")
 		}
 	})
 
