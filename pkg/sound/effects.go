@@ -81,65 +81,11 @@ func (w AmplitudeEnvelope) Value(at time.Duration) (float64, error) {
 	return val * ampl, nil
 }
 
-// // A control wave is a wave that produces an output meant to be used as a variable by another another wave.
-// // It can be used to make ADSR envelopes and change the frequency of an oscillator over time.
-// type ControlWave struct {
-// 	fn         maths.InterpolationFunction
-// 	startValue float64
-// 	segments   []*ControlWaveSegment
-// }
-
 // A amplitude envelope segment represents one part of a control wave.
 type AmplitudeEnvelopeSegment struct {
 	Duration time.Duration // 1 is one second from previous point (or from 0 if attack)
 	EndValue float64
 }
-
-// // NewControlWave creates a new control wave.
-// // The linear interpollation function is used as the fallback interpollation function if none is provided.
-// func NewControlWave(fn maths.InterpolationFunction, startValue float64, segments []*ControlWaveSegment) *ControlWave {
-// 	if fn == nil {
-// 		fn = maths.LinearInterpolation{}
-// 	}
-
-// 	return &ControlWave{fn: fn, segments: segments, startValue: startValue}
-// }
-
-// // Control waves ignore the provided frequency.
-// // That's why they are called control waves. They take control.
-// func (w *ControlWave) Value(at time.Duration) (float64, error) {
-// 	at = time.Duration(math.Mod(float64(at), float64(w.Duration())))
-// 	elapsed := time.Duration(0)
-// 	startValue := w.startValue
-
-// 	for _, segment := range w.segments {
-// 		// continue only if x is not in the current segment
-// 		if !(at >= elapsed && at < elapsed+segment.Duration) {
-// 			elapsed += segment.Duration
-// 			startValue = segment.EndValue
-// 			continue
-// 		}
-
-// 		return w.fn.At(
-// 			float64(at),
-// 			float64(elapsed),
-// 			float64(elapsed+segment.Duration),
-// 			startValue,
-// 			segment.EndValue,
-// 		), nil
-// 	}
-
-// 	// no segment matched, wave ended
-// 	return 0, ErrEndOfWave
-// }
-
-// func (w *ControlWave) Duration() time.Duration {
-// 	totalDur := time.Duration(0)
-// 	for _, segment := range w.segments {
-// 		totalDur += segment.Duration
-// 	}
-// 	return totalDur
-// }
 
 // func NewTremoloEffect(phase time.Duration) Effect {
 // 	return NewAmplitudeEnvelope(NewControlWave(nil, 0, []*ControlWaveSegment{
