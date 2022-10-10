@@ -42,7 +42,7 @@ var basslineTrack = musigo.NewTrack(sound.SawTooth{}, func(c *musigo.Controller)
 		c.Play(bpm.Beats(6), nil, chords[0].Octave(-3)[0])
 		c.Wait(bpm.Beats(2))
 },
-	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0).
+	sound.NewAmplitudeEnvelope(nil, 0).
 		Append(bpm.Beats(16), 0.1).
 		Append(bpm.Beats(32 * 4), 0.1).
 		Append(bpm.Beats(8), 0).
@@ -54,7 +54,7 @@ var chordsTrack = musigo.NewTrack(sound.Sine{}, func(c *musigo.Controller) {
 			c.Play(bpm.Beats(8), nil, notes...)
 		}
 },
-	sound.NewAmplitudeEnvelope(sound.NewControlWave(nil, 0).
+	sound.NewAmplitudeEnvelope(nil, 0).
 		Append(bpm.Beats(1), 0.6).
 		Append(bpm.Beats(7), 0),
 )
